@@ -21,19 +21,13 @@ import Loading from '../../components/Loading';
 
 import { UserContext } from '../../contexts/UserContext';
 
-import AuthService from '../../services/AuthService';
+import authService from '../../services/authService';
 
-import PersonIcon from '../../assets/person.svg';
-import EmailIcon from '../../assets/email.svg';
-import LockIcon from '../../assets/lock.svg';
-
-var credentials = require('../../../auth0-credentials');
-
-import Auth0 from 'react-native-auth0';
+import PersonIcon from '../../assets/images/person.svg';
+import EmailIcon from '../../assets/images/email.svg';
+import LockIcon from '../../assets/images/lock.svg';
 
 export default () => {
-
-    const auth0 = new Auth0(credentials);
 
     //const { dispatch: userDispatch } = useContext(UserContext);
     const navigation = useNavigation();
@@ -44,17 +38,26 @@ export default () => {
     const [password, setPassword] = useState('');
 
     const handleSignUpClick = async () => {
+
         if (firstName && lastName && email && password) {
 
-            let result = await AuthService.signUp(firstName, lastName, email, password);
-            if (result.token) {
-                console.log(json.token);
-                await AsyncStorage.setItem('token', json.token);
-
-            } else {
-                alert("ERROR");
-            }
+            await authService.signUp(firstName, lastName, email, password)
+                .then(response => {
+                    if (response && response.status === 200) {
+                        console.log(response);
+                         navigation.reset({
+                             routes: [{ name: 'SignIn' }]
+                        });
+                    } else {
+                        alert("ERROR");
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+                ;
         }
+
     }
 
     const handleLoginButtonClick = () => {
@@ -72,13 +75,13 @@ export default () => {
                     IconSvg={PersonIcon}
                     placeholder="FirstName"
                     value={firstName}
-                    onChangeText={t => setFirstName(t)}
+                    onChangeText={e => setFirstName(e)}
                 />
                 <SignInput
                     IconSvg={PersonIcon}
                     placeholder="LastName"
                     value={lastName}
-                    onChangeText={t => setLastName(t)}
+                    onChangeText={e => setLastName(e)}
                 />
 
                 <SignInput
@@ -92,7 +95,7 @@ export default () => {
                     IconSvg={LockIcon}
                     placeholder="Digite sua senha"
                     value={password}
-                    onChangeText={t => setPassword(t)}
+                    onChangeText={e => setPassword(e)}
                     password={true}
                 />
 

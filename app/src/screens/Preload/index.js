@@ -5,34 +5,50 @@ import { Container, LoadingIcon } from './styles';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
-import BarberLogo from '../../assets/barber.svg';
+import Logo from '../../components/Logo';
+import authService from '../../services/authService';
 
 export default () => {
 
     const navigation = useNavigation();
 
     useEffect(() => {
-        
-        const removeToken = async () => {
-            await AsyncStorage.removeItem('token');
-        }
+
+
 
         const checkToken = async () => {
-            const token = await AsyncStorage.getItem('token');
-            if (token) {
-                // Validate Token
-            } else {
-                navigation.navigate('SignIn');
-            }
+            AsyncStorage.getItem('token', (error, result) => {
+                if (result) {
+                    // Validate Token
+                    console.log(result);
+                    navigation.navigate('MainTab');
+
+                    // authService.refreshToken(result)
+                    //     .then(response => {
+                    //         navigation.navigate('MainTab');
+                    //     })
+                    //     .catch(error => {
+                    //         console.log(error);
+
+                    //     })
+                } else {
+                    navigation.navigate('SignIn');
+                }
+            });
+
         }
-        
+
         removeToken();
         checkToken();
     }, [])
 
+    const removeToken = async () => {
+        await AsyncStorage.removeItem('token');
+    }
+
     return (
         <Container>
-            <BarberLogo width="100%" height="160" />
+            <Logo />
             <LoadingIcon size="large" color="#FFFFFF" />
         </Container>
     );

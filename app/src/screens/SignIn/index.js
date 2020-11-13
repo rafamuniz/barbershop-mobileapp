@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import { Text, View, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import AsyncStorage from '@react-native-community/async-storage';
@@ -16,21 +17,21 @@ import {
 
 import SignInput from '../../components/SignInput';
 
-import AuthService from '../../services/AuthService';
+import authService from '../../services/authService';
 
 import Logo from '../../components/Logo';
 import Loading from '../../components/Loading';
 
 import { UserContext } from '../../contexts/UserContext';
 
-import BarberLogo from '../../assets/barber.svg';
-import EmailIcon from '../../assets/email.svg';
-import LockIcon from '../../assets/lock.svg';
+import EmailIcon from '../../assets/images/email.svg';
+import LockIcon from '../../assets/images/lock.svg';
 
-import Auth0 from 'react-native-auth0';
+import ErrorMessage from '../../components/ErrorMessage';
 
 export default () => {
-    const auth0 = new Auth0({ domain: 'barbershop.au.auth0.com', clientId: 'Wbxv34gRj86RTDTe7sVeXZu85QtVarwI' });
+
+    //const { t, i18n } = props.screenProps;
 
     //const { dispatch: userDispatch } = useContext(UserContext);
     const navigation = useNavigation();
@@ -39,93 +40,32 @@ export default () => {
     const [password, setPassword] = useState('');
 
     const handleSignClick = async () => {
-        // const auth0 = new Auth0({
-        //     domain: 'barbershop.au.auth0.com',
-        //     clientId: 'Wbxv34gRj86RTDTe7sVeXZu85QtVarwI',
-        // });
 
-        //console.log(email, password);
+        await authService.login(email, password)
+            .then(response => {
+                console.log(response);
+                AsyncStorage.setItem('token', response.accessToken);
 
-        // auth0.auth
-        //     .passwordRealm({
-        //         username: email,
-        //         password: password,
-        //         realm: 'Username-Password-Authentication',
-        //     })
-        //     .then(async (response)  => {
-        //         console.log(response.accessToken);
-        //         if (response.accessToken) {
-        //             await AsyncStorage.setItem('token', response.accessToken);
+                navigation.navigate('MainTab');                
+            })
+            .catch(error => {
+                console.log(error)
+            });
 
-        //             // userDispatch({
-        //             //     type: 'setAvatar',
-        //             //     payload: {
-        //             //         avatar: json.data.avatar
-        //             //     }
-        //             // });
+    }
 
-        //             navigation.reset({
-        //                 routes: [{ name: 'MainTab' }]
-        //             });
-        //         } else {
-        //             alert('E-mail e/ou senha errados!');
-        //         }
-        //     })
-        //     .catch(console.error);
+    const handleLogoutClick = async () => {
 
-        if (email != '' && password != '') {
+        await authService.logout()
+            .then(async (response) => {
+                alert('Log out');
 
-            await AuthService.signIn(email, password)
-                .then(async (response) => {
-                    if (response && response.accessToken) {
-                        await AsyncStorage.setItem('token', response.accessToken);
-
-                        console.log("TOKEN: " + await AsyncStorage.getItem('token'));
-                        // userDispatch({
-                        //     type: 'setAvatar',
-                        //     payload: {
-                        //         avatar: json.data.avatar
-                        //     }
-                        // });
-
-                        navigation.reset({
-                            routes: [{ name: 'MainTab' }]
-                        });
-                    } else {
-                        alert('E-mail e/ou senha errados!1111111');
-                    }
-                })
-                .catch((error) => {
-                    console.log(JSON.stringify({ error }));
-                    //console.log(error);
-                    if (error.name === "invalid_grant"){
-                        alert("E-mail e/ou senha errados!");
-                    }
-
-                })
-                ;
-
-            // if (accessToken) {
-            //     await AsyncStorage.setItem('token', accessToken);
-
-            //     console.log("TOKEN: " + await AsyncStorage.getItem('token'));
-            //     // userDispatch({
-            //     //     type: 'setAvatar',
-            //     //     payload: {
-            //     //         avatar: json.data.avatar
-            //     //     }
-            //     // });
-
-            //     navigation.reset({
-            //         routes: [{ name: 'MainTab' }]
-            //     });
-            // } else {
-            //     alert('E-mail e/ou senha errados!');
-            // }
-
-        } else {
-            alert("Preencha os campos!");
-        }
+                AsyncStorage.removeItem('token');
+            })
+            .catch((error) => {
+                console.log("Logout: " + error);
+            })
+            ;
     }
 
     const handleMessageButtonClick = () => {
@@ -136,6 +76,34 @@ export default () => {
 
     return (
         <Container>
+            <ErrorMessage error="wefwefewfewfewfew" />
+
+            {/* <Text>
+                {t('Hey Yo Im at home')}
+            </Text> */}
+
+            {/* <View
+                style={{
+                    flexDirection: 'row',
+                    margin: 10,
+                }}>
+                <TouchableOpacity
+                    onPress={() => i18n.changeLanguage('en')} //Here I change the language to "en" English
+                    style={Styles.button}>
+                    <Text style={{ color: '#fff' }}>EN</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => i18n.changeLanguage('es')} //Here I change the language to "es" Spanish
+                    style={Styles.button}>
+                    <Text style={{ color: '#fff' }}>ES</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => i18n.changeLanguage('de')} //Here I change the language to "de" German
+                    style={Styles.button}>
+                    <Text style={{ color: '#fff' }}>DE</Text>
+                </TouchableOpacity>
+            </View> */}
+
             <Logo />
             <Loading />
 
@@ -144,18 +112,22 @@ export default () => {
                     IconSvg={EmailIcon}
                     placeholder="Digite seu e-mail"
                     value={email}
-                    onChangeText={t => setEmail(t)}
+                    onChangeText={e => setEmail(e)}
                 />
 
                 <SignInput
                     IconSvg={LockIcon}
                     placeholder="Digite sua senha"
                     value={password}
-                    onChangeText={t => setPassword(t)}
+                    onChangeText={e => setPassword(e)}
                     password={true}
                 />
+
                 <CustomButton onPress={handleSignClick}>
                     <CustomButtonText>LOGIN</CustomButtonText>
+                </CustomButton>
+                <CustomButton onPress={handleLogoutClick}>
+                    <CustomButtonText>LOGOUT</CustomButtonText>
                 </CustomButton>
             </InputArea>
 

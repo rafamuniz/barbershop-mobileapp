@@ -27,8 +27,8 @@
           <category android:name="android.intent.category.BROWSABLE" />
           <data
               android:host="barbershop.au.auth0.com"
-              android:pathPrefix="/android/${applicationId}/callback"
-              android:scheme="${applicationId}" />
+              android:pathPrefix="/android/com.app/callback"
+              android:scheme="com.app" />
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />

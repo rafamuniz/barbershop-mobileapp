@@ -3,7 +3,7 @@ import {
 
 } from './styles';
 
-import BarberLogo from '../../assets/barber.svg';
+import BarberLogo from '../../assets/images/barber.svg';
 
 export default () => {
   return (

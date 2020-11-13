@@ -4,7 +4,7 @@ Libs
 react
     react-native
 
-npm i  @react-native-community/async-storage
+npm i @react-native-community/async-storage
     @react-native-community/geolocation
     @react-native-community/masked-view
     @react-navigation/bottom-tabs
@@ -18,15 +18,16 @@ npm i  @react-native-community/async-storage
     react-native-svg
     react-native-svg-transformer
     react-native-swiper
-    styled-components
-	
+    styled-components	
 npm i react-native-swiper
 npm i react-native-svg
 npm i react-native-svg-transformer
 npm i styled-components-native
+npm i i18next react-i18next react-native-localize
+npm i axios
 
 commands
 npx react-native run-android
 
-cd Users\rafam\AppData\Local\Android\Sdk\emulator
-emulator -avd Pixel_2_API_28
+cd \Users\rafam\AppData\Local\Android\Sdk\emulator
+emulator -avd Pixel_2_API_28 -dns-server 8.8.8.8
